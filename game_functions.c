@@ -93,3 +93,38 @@ platform_t const *DeterminateNewPlatform (size_t left, size_t right, platform_t 
     }
 }
 
+void InfiniteGame (game_t *result){
+    int continuation_flag = 1;
+    while (continuation_flag){
+        switch (AttemptResult (result->Platform_array))
+        {
+            case 0:
+                result->platform_quantity++;
+                if (result->platform_quantity == result->certain_maximum){
+                    result->certain_maximum *= 2;
+                    result->Platform_array = (platform_t const**)realloc (result->Platform_array, sizeof (platform_t)*result->certain_maximum);
+                }
+                break;
+            case 1:
+                continuation_flag = 0;
+                break;
+            default:
+                assert (0);
+        };
+    }
+
+}
+
+int FixedGame (game_t *result, size_t platform_number){
+    InitTerminal ();
+    AttemptResult (result->Platform_array);
+    for (size_t i = 1; i < platform_number; i ++)
+    {
+        if (AttemptResult (result->Platform_array) != 0){
+            ResetTerminal ();
+            return 1;
+        }
+    }
+    ResetTerminal ();
+    return 0;
+}

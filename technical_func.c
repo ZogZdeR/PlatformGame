@@ -2,7 +2,7 @@
 
 struct termios old_t;
 
-void init_terminal() {
+void InitTerminal () {
     struct termios new_t;
     tcgetattr(STDIN_FILENO, &old_t);
     new_t = old_t;
@@ -14,11 +14,23 @@ void init_terminal() {
     fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 }
 
-void reset_terminal() {
+void InitWaitingTerminal () {
+    struct termios new_t;
+    tcgetattr(STDIN_FILENO, &old_t);
+    new_t = old_t;
+    new_t.c_lflag &= ~(ICANON | ECHO);
+    new_t.c_cc[VMIN] = 1;
+    new_t.c_cc[VTIME] = 5000;
+    tcsetattr(STDIN_FILENO, TCSANOW, &new_t);
+    int flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+}
+
+void ResetTerminal () {
     tcsetattr(STDIN_FILENO, TCSANOW, &old_t);
 }
 
-int getch() {
+int getch () {
     unsigned char ch;
     if (read(STDIN_FILENO, &ch, 1) > 0) return ch;
     return 0;
