@@ -11,8 +11,7 @@ platform_t *Constructor (size_t left, size_t right, platform_t const *prev_platf
 void Destructor (platform_t const **Platform_array, size_t max_plat_quantity){
     assert (Platform_array);
     platform_t *noconst_ptr = NULL;
-    for (size_t i = 0; i < max_plat_quantity; i ++)
-    {
+    for (size_t i = 0; i < max_plat_quantity; i ++){
         if (Platform_array[i] != INVALID_PLATFORM && Platform_array[i] != NULL){
             noconst_ptr = (platform_t *) Platform_array[i];
             free (noconst_ptr);
@@ -22,19 +21,22 @@ void Destructor (platform_t const **Platform_array, size_t max_plat_quantity){
     free (noconst_array_ptr);
 }
 
-size_t AttemptResult (platform_t const **Platform_array){
+size_t AttemptResult (game_t *game){
 
+    platform_t const **Platform_array = game->Platform_array;
     static size_t plat_number = 0;
     size_t left = 0;
     size_t right = 0;
-    if (plat_number) right = Platform_array[plat_number - 1]->size - 1;
-    else right = BASIC_PLATFORM_SIZE - 1;
+    if (plat_number){
+        right = Platform_array[plat_number - 1]->right_border;
+        left = Platform_array[plat_number - 1]->left_border;
+    }
+    else
+        right = BASIC_PLATFORM_SIZE - 1;
     int direction = 'r';
     int key = '\0';
-    while (key != ' ' && key != '\n')
-    {
-        switch (direction)
-        {
+    while (key != ' ' && key != '\n'){
+        switch (direction){
             case 'r':
                 if (right < MAX_SCREEN_SIZE){
                     left ++;
@@ -96,8 +98,7 @@ platform_t const *DeterminateNewPlatform (size_t left, size_t right, platform_t 
 void InfiniteGame (game_t *result){
     int continuation_flag = 1;
     while (continuation_flag){
-        switch (AttemptResult (result->Platform_array))
-        {
+        switch (AttemptResult (result->Platform_array)){
             case 0:
                 result->platform_quantity++;
                 if (result->platform_quantity == result->certain_maximum){
@@ -118,8 +119,7 @@ void InfiniteGame (game_t *result){
 int FixedGame (game_t *result, size_t platform_number){
     InitTerminal ();
     AttemptResult (result->Platform_array);
-    for (size_t i = 1; i < platform_number; i ++)
-    {
+    for (size_t i = 1; i < platform_number; i ++){
         if (AttemptResult (result->Platform_array) != 0){
             ResetTerminal ();
             return 1;
